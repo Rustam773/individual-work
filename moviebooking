@@ -1,0 +1,133 @@
+import json
+
+bookings = []
+DATA_FILE = 'bookings.json'
+
+def welcome():
+    ascii_art = r"""
+    ***************************************
+    *    WELCOME TO MOVIE BOOKING APP     *
+    *                                     *
+    ***************************************
+    """
+    print(ascii_art)
+def menu():
+    print("\nMenu:")
+    print("1. Add Booking")
+    print("2. View Bookings")
+    print("3. Search Booking")
+    print("4. Update Booking")
+    print("5. Delete Booking")
+    print("6. Summary Stats")
+    print("7. Save Bookings")
+    print("8. Load Bookings")
+    print("0. Exit")
+
+def booking():
+    name = input("Enter your name: ")
+    movie = input("Enter movie name: ")
+    seat = input("Enter seat number: ")
+    bookings.append({"name": name, "movie": movie, "seat": seat})
+    print("Booking added!")
+
+def view():
+    if not bookings:
+        print("No bookings yet.")
+    else:
+        for i, b in enumerate(bookings, 1):
+            print(f"{i}. Name: {b['name']}, Movie: {b['movie']}, Seat: {b['seat']}")
+
+def search():
+    keyword = input("Enter name or movie to search: ").lower()
+    found = False
+    for b in bookings:
+        if keyword in b['name'].lower() or keyword in b['movie'].lower():
+            print(f"Name: {b['name']}, Movie: {b['movie']}, Seat: {b['seat']}")
+            found = True
+    if not found:
+        print("No matching booking found.")
+
+def update():
+    view()
+    try:
+        idx = int(input("Enter booking number to update: ")) - 1
+        if 0 <= idx < len(bookings):
+            name = input("Enter new name (leave blank to keep current): ")
+            movie = input("Enter new movie (leave blank to keep current): ")
+            seat = input("Enter new seat (leave blank to keep current): ")
+            if name: bookings[idx]["name"] = name
+            if movie: bookings[idx]["movie"] = movie
+            if seat: bookings[idx]["seat"] = seat
+            print("Booking updated.")
+        else:
+            print("Invalid booking number.")
+    except ValueError:
+        print("Invalid input.")
+
+def delete():
+    view()
+    try:
+        idx = int(input("Enter booking number to delete: ")) - 1
+        if 0 <= idx < len(bookings):
+            del bookings[idx]
+            print("Booking deleted.")
+        else:
+            print("Invalid booking number.")
+    except ValueError:
+        print("Invalid input.")
+
+def summary_stats():
+    print(f"Total Bookings: {len(bookings)}")
+    movie_count = {}
+    for b in bookings:
+        movie = b["movie"]
+        movie_count[movie] = movie_count.get(movie, 0) + 1
+    print("Bookings per Movie:")
+    for movie, count in movie_count.items():
+        print(f"- {movie}: {count}")
+
+def save_bookings():
+    with open(DATA_FILE, 'w') as f:
+        json.dump(bookings, f)
+    print("Bookings saved to file.")
+
+def load_bookings():
+    global bookings
+    try:
+        with open(DATA_FILE, 'r') as f:
+            bookings = json.load(f)
+        print(f"Loaded {len(bookings)} booking(s).")
+    except FileNotFoundError:
+        print("No saved bookings found.")
+    except json.JSONDecodeError:
+        print("Error: Saved file is corrupted.")
+
+def run():
+    welcome()
+    while True:
+        menu()
+        choice = input("Choose an option: ")
+        if choice == '1':
+            booking()
+        elif choice == '2':
+            view()
+        elif choice == '3':
+            search()
+        elif choice == '4':
+            update()
+        elif choice == '5':
+            delete()
+        elif choice == '6':
+            summary_stats()
+        elif choice == '7':
+            save_bookings()
+        elif choice == '8':
+            load_bookings()
+        elif choice == '0':
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Try again.")
+
+if __name__ == '__main__':
+    run()
